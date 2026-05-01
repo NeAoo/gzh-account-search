@@ -1,0 +1,48 @@
+# gzh-account-search configuration example
+# Copy this file to config.yaml and edit it. config.yaml is ignored by git.
+
+# LLM settings. Required only when scoring.enabled is true.
+llm:
+  api_key: ""
+  base_url: "https://api.openai.com/v1"
+  model: "gpt-4o-mini"
+  workers: 5
+
+# WeChat public account collection settings.
+fetch:
+  accounts:
+    - "公众号示例A"
+    - "公众号示例B"
+  max_articles_per_account: 10
+  lookback_days: 7
+  fetch_full_content: true
+
+  # Browser mode:
+  #   auto     First run visible for QR login, then headless when state is valid.
+  #   visible  Always show browser.
+  #   headless Always hide browser. Requires valid browser_data state.
+  browser_mode: "auto"
+  login_timeout_seconds: 180
+
+  # Rhythm controls. Larger values reduce UI flakiness and platform risk.
+  slow_mo_ms: 300
+  action_delay_seconds: 1.5
+  article_delay_seconds: 3.0
+  page_delay_seconds: 4.0
+  account_delay_seconds: 8.0
+
+scoring:
+  enabled: true
+  prompt_file: "prompts/scoring.txt"
+
+output:
+  dir: "./output"
+  template_file: "templates/report.md.j2"
+  no_score_template_file: "templates/report_no_score.md.j2"
+  top_n: 10
+  filename_pattern: "公众号日报_{date}.md"
+
+paths:
+  raw_data_dir: "./raw_data/wechat_mp"
+  browser_data: "./browser_data/wechat_mp_state.json"
+  log_file: "./logs/run.log"

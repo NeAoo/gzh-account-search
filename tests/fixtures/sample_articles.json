@@ -1,0 +1,36 @@
+[
+  {
+    "title": "文章 1",
+    "source": "公众号A",
+    "author": "公众号A",
+    "publish_time": "2026-05-01T10:00:00",
+    "url": "https://example.com/1",
+    "content": "正文 1",
+    "score": 9.0,
+    "score_details": {
+      "heat": 9.0,
+      "authority": 8.0,
+      "quality": 9.0,
+      "practicality": 8.0,
+      "timeliness": 9.0,
+      "reason": "值得关注"
+    }
+  },
+  {
+    "title": "文章 2",
+    "source": "公众号B",
+    "author": "公众号B",
+    "publish_time": "2026-04-30T10:00:00",
+    "url": "https://example.com/2",
+    "content": "正文 2",
+    "score": 7.0,
+    "score_details": {
+      "heat": 7.0,
+      "authority": 7.0,
+      "quality": 7.0,
+      "practicality": 7.0,
+      "timeliness": 7.0,
+      "reason": "可以参考"
+    }
+  }
+]

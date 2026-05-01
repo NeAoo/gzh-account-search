@@ -1,0 +1,50 @@
+# 公众号文章精选
+
+**生成时间**: {{ generated_at }}
+**文章数量**: {{ articles | length }}
+**评分模式**: 通用五维评分
+
+---
+
+## 评分概览
+
+{% if articles %}
+- 最高评分: {{ "%.2f"|format(max_score) }}
+- 平均评分: {{ "%.2f"|format(avg_score) }}
+{% else %}
+- 暂无文章
+{% endif %}
+
+---
+
+## Top {{ articles | length }} 文章详情
+
+{% for article in articles %}
+### {{ loop.index }}. {{ article.title }}
+
+**评分**: {{ "%.2f"|format(article.score or 0) }}/10
+**公众号**: {{ article.source }}
+**发布时间**: {{ article.publish_time.strftime("%Y-%m-%d %H:%M") }}
+
+{% if article.score_details %}
+**评分详情**:
+- 热度: {{ "%.1f"|format(article.score_details.get("heat", 0)) }}
+- 权威性: {{ "%.1f"|format(article.score_details.get("authority", 0)) }}
+- 内容质量: {{ "%.1f"|format(article.score_details.get("quality", 0)) }}
+- 实用性: {{ "%.1f"|format(article.score_details.get("practicality", 0)) }}
+- 时效性: {{ "%.1f"|format(article.score_details.get("timeliness", 0)) }}
+
+**评分理由**: {{ article.score_details.get("reason", "") }}
+{% endif %}
+
+{% if article.content %}
+**内容摘录**:
+
+{{ article.content }}
+{% endif %}
+
+[查看原文]({{ article.url }})
+
+---
+
+{% endfor %}
