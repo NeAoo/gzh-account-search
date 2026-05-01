@@ -24,7 +24,7 @@ def _minimal_payload() -> dict:
             "workers": 5,
         },
         "fetch": {
-            "accounts": ["公众号A"],
+            "accounts": ["gzhA"],
             "max_articles_per_account": 10,
             "lookback_days": 7,
             "fetch_full_content": True,
@@ -45,11 +45,11 @@ def _minimal_payload() -> dict:
             "template_file": "templates/report.md.j2",
             "no_score_template_file": "templates/report_no_score.md.j2",
             "top_n": 10,
-            "filename_pattern": "公众号日报_{date}.md",
+            "filename_pattern": "gzh日报_{date}.md",
         },
         "paths": {
-            "raw_data_dir": "./raw_data/wechat_mp",
-            "browser_data": "./browser_data/wechat_mp_state.json",
+            "raw_data_dir": "./raw_data/gzh",
+            "browser_data": "./browser_data/gzh_state.json",
             "log_file": "./logs/run.log",
         },
     }
@@ -59,7 +59,7 @@ def test_load_minimal_valid_config(tmp_path):
     config_file = _write_yaml(tmp_path, _minimal_payload())
     config = Config.from_yaml(config_file)
     assert config.llm.api_key == "sk-test"
-    assert config.fetch.accounts == ["公众号A"]
+    assert config.fetch.accounts == ["gzhA"]
     assert config.fetch.slow_mo_ms == 300
     assert config.fetch.account_delay_seconds == 8.0
     assert config.scoring.enabled is True

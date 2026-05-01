@@ -35,7 +35,7 @@ def setup_logger(log_file: str, level: str = "INFO") -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="按指定微信公众号名称批量采集文章并输出 Markdown 报告"
+        description="按指定 gzh 账号批量采集文章并输出 Markdown 报告"
     )
     parser.add_argument(
         "-c",

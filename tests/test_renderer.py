@@ -19,7 +19,7 @@ def test_render_with_scores_uses_template():
         no_score_template_file=Path("templates/report_no_score.md.j2"),
     )
     content = renderer.render_with_scores(_load_articles())
-    assert "公众号文章精选" in content
+    assert "gzh 文章精选" in content
     assert "文章 1" in content
     assert "9.00" in content
 
@@ -30,7 +30,7 @@ def test_render_no_score_uses_template():
         no_score_template_file=Path("templates/report_no_score.md.j2"),
     )
     content = renderer.render_no_score(_load_articles())
-    assert "公众号文章简报" in content
+    assert "gzh 文章简报" in content
     assert "评分模式" in content
     assert "文章 2" in content
 

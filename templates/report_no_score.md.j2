@@ -1,4 +1,4 @@
-# 公众号文章简报
+# gzh 文章简报
 
 **生成时间**: {{ generated_at }}
 **文章数量**: {{ articles | length }}
@@ -9,7 +9,7 @@
 {% for article in articles %}
 ### {{ loop.index }}. {{ article.title }}
 
-**公众号**: {{ article.source }}
+**gzh**: {{ article.source }}
 **发布时间**: {{ article.publish_time.strftime("%Y-%m-%d %H:%M") }}
 
 {% if article.content %}

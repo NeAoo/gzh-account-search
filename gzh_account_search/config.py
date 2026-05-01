@@ -41,12 +41,12 @@ class OutputConfig(BaseModel):
     template_file: str = Field("templates/report.md.j2")
     no_score_template_file: str = Field("templates/report_no_score.md.j2")
     top_n: int = Field(10, ge=1, le=1000)
-    filename_pattern: str = Field("公众号日报_{date}.md")
+    filename_pattern: str = Field("gzh日报_{date}.md")
 
 
 class PathsConfig(BaseModel):
-    raw_data_dir: str = Field("./raw_data/wechat_mp")
-    browser_data: str = Field("./browser_data/wechat_mp_state.json")
+    raw_data_dir: str = Field("./raw_data/gzh")
+    browser_data: str = Field("./browser_data/gzh_state.json")
     log_file: str = Field("./logs/run.log")
 
 

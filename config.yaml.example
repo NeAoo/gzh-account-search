@@ -8,11 +8,11 @@ llm:
   model: "gpt-4o-mini"
   workers: 5
 
-# WeChat public account collection settings.
+# gzh collection settings.
 fetch:
   accounts:
-    - "公众号示例A"
-    - "公众号示例B"
+    - "gzh示例A"
+    - "gzh示例B"
   max_articles_per_account: 10
   lookback_days: 7
   fetch_full_content: true
@@ -40,9 +40,9 @@ output:
   template_file: "templates/report.md.j2"
   no_score_template_file: "templates/report_no_score.md.j2"
   top_n: 10
-  filename_pattern: "公众号日报_{date}.md"
+  filename_pattern: "gzh日报_{date}.md"
 
 paths:
-  raw_data_dir: "./raw_data/wechat_mp"
-  browser_data: "./browser_data/wechat_mp_state.json"
+  raw_data_dir: "./raw_data/gzh"
+  browser_data: "./browser_data/gzh_state.json"
   log_file: "./logs/run.log"

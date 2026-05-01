@@ -1,4 +1,4 @@
-# 公众号文章精选
+# gzh 文章精选
 
 **生成时间**: {{ generated_at }}
 **文章数量**: {{ articles | length }}
@@ -23,7 +23,7 @@
 ### {{ loop.index }}. {{ article.title }}
 
 **评分**: {{ "%.2f"|format(article.score or 0) }}/10
-**公众号**: {{ article.source }}
+**gzh**: {{ article.source }}
 **发布时间**: {{ article.publish_time.strftime("%Y-%m-%d %H:%M") }}
 
 {% if article.score_details %}
