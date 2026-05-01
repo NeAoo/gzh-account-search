@@ -32,7 +32,7 @@ fetch:
   account_delay_seconds: 8.0
 
 scoring:
-  enabled: true
+  enabled: false
   prompt_file: "prompts/scoring.txt"
 
 output:

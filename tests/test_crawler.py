@@ -28,11 +28,9 @@ def test_parse_publish_time_yesterday_returns_recent():
     assert (datetime.now() - result) < timedelta(days=2)
 
 
-def test_parse_publish_time_unknown_returns_now():
-    before = datetime.now()
+def test_parse_publish_time_unknown_returns_none():
     result = parse_publish_time("无法解析的时间字符串")
-    after = datetime.now()
-    assert before <= result <= after
+    assert result is None
 
 
 def test_split_article_row_text_extracts_date():

@@ -82,6 +82,11 @@ def test_scoring_disabled_allows_empty_api_key(tmp_path):
     assert config.scoring.enabled is False
 
 
+def test_example_config_loads_without_api_key():
+    config = Config.from_yaml("config.yaml.example")
+    assert config.scoring.enabled is False
+
+
 def test_browser_mode_invalid_raises(tmp_path):
     payload = _minimal_payload()
     payload["fetch"]["browser_mode"] = "invalid"

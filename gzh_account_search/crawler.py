@@ -16,8 +16,12 @@ from gzh_account_search.models import Article, CollectionResult
 if TYPE_CHECKING:
     from playwright.sync_api import BrowserContext, Page
 
+ARTICLE_ITEM_SELECTOR = (
+    'xpath=//*[@id="vue_app"]//label[contains(@class, "inner_link_article_item")]'
+)
 
-def parse_publish_time(raw: str) -> datetime:
+
+def parse_publish_time(raw: str) -> Optional[datetime]:
     """Parse publish time text from the WeChat article picker."""
     text = raw.strip()
     patterns = [
@@ -41,8 +45,8 @@ def parse_publish_time(raw: str) -> datetime:
     if "今天" in text:
         return datetime.now()
 
-    logger.debug(f"Could not parse publish time, using now: {raw}")
-    return datetime.now()
+    logger.warning(f"Could not parse publish time, skipping article: {raw}")
+    return None
 
 
 def split_article_row_text(raw_text: str) -> tuple[str, str]:
@@ -200,20 +204,19 @@ class WechatMpCrawler:
         self._open_account_article_picker(page, token, account)
 
         articles: list[Article] = []
+        seen_article_keys: set[tuple[str, str, str]] = set()
         while len(articles) < self.config.max_articles_per_account:
             page.wait_for_selector(
-                'xpath=//*[@id="vue_app"]//label[contains(@class, "inner_link_article_item")]',
+                ARTICLE_ITEM_SELECTOR,
                 timeout=30000,
             )
-            article_items = page.locator(
-                'xpath=//*[@id="vue_app"]//label[contains(@class, "inner_link_article_item")]'
-            )
+            article_items = page.locator(ARTICLE_ITEM_SELECTOR)
             item_count = article_items.count()
             logger.info(f"{account} current page article count: {item_count}")
             if item_count == 0:
                 break
 
-            saw_recent_article = False
+            saw_new_recent_article = False
             for index in range(item_count):
                 if len(articles) >= self.config.max_articles_per_account:
                     break
@@ -228,19 +231,38 @@ class WechatMpCrawler:
                     raw_item["publish_time"], self.config.lookback_days
                 ):
                     continue
+                article_key = self._article_key(raw_item)
+                if article_key in seen_article_keys:
+                    logger.warning(
+                        f"Skip duplicated article [{account}] {raw_item['title'][:40]}"
+                    )
+                    continue
 
-                saw_recent_article = True
+                saw_new_recent_article = True
+                seen_article_keys.add(article_key)
                 articles.append(self._build_article(raw_item))
                 logger.info(f"Collected [{account}] {raw_item['title'][:40]}")
 
             if len(articles) >= self.config.max_articles_per_account:
                 break
-            if not saw_recent_article:
+            if not saw_new_recent_article:
                 break
             if not self._go_next_page(page):
                 break
 
         return articles
+
+    def _article_key(self, raw_item: dict) -> tuple[str, str, str]:
+        publish_time = raw_item.get("publish_time")
+        if isinstance(publish_time, datetime):
+            publish_label = publish_time.isoformat()
+        else:
+            publish_label = str(publish_time or "")
+        return (
+            str(raw_item.get("url") or ""),
+            str(raw_item.get("title") or ""),
+            publish_label,
+        )
 
     def _build_article(self, raw_item: dict) -> Article:
         account = raw_item.get("account", "")
@@ -297,6 +319,8 @@ class WechatMpCrawler:
             title = self._read_item_title(item)
             date_text = self._read_item_date(item)
             publish_time = parse_publish_time(date_text)
+            if publish_time is None:
+                return None
             url = self._read_item_url(item)
             content = ""
             if self.config.fetch_full_content:
@@ -426,12 +450,58 @@ class WechatMpCrawler:
 
     def _go_next_page(self, page: "Page") -> bool:
         try:
-            next_button = page.get_by_text("下一页", exact=True)
+            next_button = page.get_by_text("下一页", exact=True).last
             if not next_button.is_visible(timeout=3000):
                 return False
+            if self._is_locator_disabled(next_button):
+                return False
+
+            before = self._article_page_fingerprint(page)
             next_button.click(timeout=5000)
             self._pause(page, self.config.page_delay_seconds)
+            after = self._article_page_fingerprint(page)
+            if before and after == before:
+                logger.warning(
+                    "Next page click did not change article list; stopping pagination"
+                )
+                return False
             return True
+        except Exception:
+            return False
+
+    def _article_page_fingerprint(self, page: "Page") -> str:
+        try:
+            article_items = page.locator(ARTICLE_ITEM_SELECTOR)
+            item_count = min(article_items.count(), 3)
+            return "\n---\n".join(
+                (article_items.nth(index).inner_text(timeout=3000) or "").strip()
+                for index in range(item_count)
+            )
+        except Exception:
+            return ""
+
+    def _is_locator_disabled(self, locator) -> bool:
+        try:
+            return bool(
+                locator.evaluate(
+                    """element => {
+                        const disabledMarkers = ["disabled", "btn_disabled"];
+                        let current = element;
+                        for (let depth = 0; current && depth < 5; depth += 1) {
+                            if (current.disabled || current.getAttribute("aria-disabled") === "true") {
+                                return true;
+                            }
+                            const className = (current.getAttribute("class") || "").toLowerCase();
+                            if (disabledMarkers.some(marker => className.includes(marker))) {
+                                return true;
+                            }
+                            current = current.parentElement;
+                        }
+                        return false;
+                    }""",
+                    timeout=3000,
+                )
+            )
         except Exception:
             return False
 
